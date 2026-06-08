@@ -23,19 +23,5 @@
         }
     </script>
 
-
-<button onclick="test()">Test</button>
-
-<script>
-async function test() {
-    const response = await fetch(
-        "http://localhost:8000/weather/london"
-    );
-
-    const data = await response.json();
-
-    console.log(data);
-}
-</script>
 </body>
 </html>
