@@ -1,10 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Weather App</title>
 </head>
 <body>
+    <h1>Weather</h1>
 
+    <input id="city" placeholder="Enter city">
+    <button onclick="getWeather()">Search</button>
+
+    <p id="result"></p>
+
+    <script>
+        async function getWeather() {
+            const city = document.getElementById("city").value;
+
+            const response = await fetch(`/weather/${city}`);
+            const data = await response.json();
+
+            document.getElementById("result").innerText =
+                `${data.city}: ${data.temperature}°C`;
+        }
+    </script>
 </body>
 </html>

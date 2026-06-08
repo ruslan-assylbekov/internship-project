@@ -22,7 +22,6 @@ def get_weather():
         "q": "London"
     }
     response = requests.get(url, params=params)
-
     return response.json()
 
 
