@@ -5,21 +5,19 @@
 </head>
 <body>
     <h1>Weather</h1>
+    <p style="font-size: large;">Enter the name of the city</p>
 
     <input id="city" placeholder="Enter city">
     <button onclick="getWeather()">Search</button>
 
-    <p id="result"></p>
+    <p  id="result"></p>
 
     <script>
         async function getWeather() {
             const city = document.getElementById("city").value;
-
             const response = await fetch(`/weather/${city}`);
             const data = await response.json();
-
-            document.getElementById("result").innerText =
-                `${data.city}: ${data.temperature}°C`;
+            document.getElementById("result").innerText = `${data.city}: ${data.temperature}°C`;
         }
     </script>
 
