@@ -15,9 +15,12 @@
     <script>
         async function getWeather() {
             const city = document.getElementById("city").value;
-            const response = await fetch(`/weather/${city}`);
+            const response = await fetch(`http://127.0.0.1:8000/weather/${city}`);
+            if (response.ok) {
+                return
+            }
             const data = await response.json();
-            document.getElementById("result").innerText = `${data.city}: ${data.temperature}°C`;
+            document.getElementById("result").innerText = `It is ${data.temperature}°C in ${data.city}. Feels like ${data.feeling}°C. The sky is ${data.clouds} today.`;
         }
     </script>
 
