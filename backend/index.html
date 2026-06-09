@@ -8,6 +8,7 @@
     <p style="font-size: large;">Enter the name of the city</p>
 
     <input id="city" placeholder="Enter city">
+    <input id="days" placeholder="Enter days">
     <button onclick="getWeather()">Search</button>
 
     <p id="result"></p>
@@ -15,12 +16,10 @@
     <script>
         async function getWeather() {
             const city = document.getElementById("city").value;
-            const response = await fetch(`weather/${city}`);
+            const days = document.getElementById("days").value;
+            const response = await fetch(`weather/${city}/${days}`);
             const data = await response.json();
-            document.getElementById("result").innerText = `It is ${data.temperature}°C in ${data.city}. 
-            \nFeels like ${data.feeling}°C. 
-            \nThe sky is ${data.clouds} today.
-            \nForecast for next 3 days:
+            document.getElementById("result").innerText = `It is ${data.temperature}°C in ${data.city}. Feels like ${data.feeling}°C. The sky is ${data.clouds} today. Forecast for next 3 days:
             \n${data.forecast}`;
         }
     </script>

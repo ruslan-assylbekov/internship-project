@@ -14,7 +14,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings
 
-
 class Settings(BaseSettings):
     api_key: str
 
@@ -27,7 +26,6 @@ settings = Settings()   # loads the .env file
 app = FastAPI()
 
 origins = ["http://127.0.0.1:8000", "http://localhost:3000"]
-
 
 
 app.add_middleware(CORSMiddleware, 
@@ -54,13 +52,13 @@ def homepage():
 
 
 
-@app.get("/weather/{city}")
-def get_weather(city: str):
+@app.get("/weather/{city}/{days}")
+def get_weather(city: str, days: int):
     url = "http://api.weatherapi.com/v1/forecast.json"
     params = {
         "key": settings.api_key,
         "q": city,
-        "days": 4,
+        "days": days,
         "hour": 0
     }
 
@@ -69,6 +67,8 @@ def get_weather(city: str):
     forecast = ""
     for day in data["forecast"]["forecastday"]:
         forecast = forecast + str(day["date"]) +": "+  str(day["day"]["avgtemp_c"]) + "°C" + '\n'
+
+
     return {
         "city": data["location"]["name"],
         "temperature": data["current"]["temp_c"],
