@@ -10,17 +10,18 @@
     <input id="city" placeholder="Enter city">
     <button onclick="getWeather()">Search</button>
 
-    <p  id="result"></p>
+    <p id="result"></p>
 
     <script>
         async function getWeather() {
             const city = document.getElementById("city").value;
-            const response = await fetch(`http://127.0.0.1:8000/weather/${city}`);
-            if (response.ok) {
-                return
-            }
+            const response = await fetch(`weather/${city}`);
             const data = await response.json();
-            document.getElementById("result").innerText = `It is ${data.temperature}°C in ${data.city}. Feels like ${data.feeling}°C. The sky is ${data.clouds} today.`;
+            document.getElementById("result").innerText = `It is ${data.temperature}°C in ${data.city}. 
+            \nFeels like ${data.feeling}°C. 
+            \nThe sky is ${data.clouds} today.
+            \nForecast for next 3 days:
+            \n${data.forecast}`;
         }
     </script>
 
