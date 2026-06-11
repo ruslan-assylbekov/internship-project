@@ -1,11 +1,19 @@
 #TODO
 #
-#CRUD functions for database
-#pydantic validation
-#docker
+# CRUD functions for database
+# docker
 #
 #
-#clean architecture (i dont know)
+# clean architecture (i dont know)
+
+# questions
+# app.js и main.py в чем разница
+# ?
+# pydantic и проверка обьекта
+# post запрос делается через /books а  что если несколько таких запросов
+# middleware реальное применение
+# я могу сделать get /books/${book_id}  могу ли я сделать просто /books
+
 
 import requests
 import time
@@ -87,6 +95,7 @@ def get_weather(city: str, days: int):
         "clouds": data["current"]["condition"]["text"],
         "forecast": forecast
     }
+
 
 
 
