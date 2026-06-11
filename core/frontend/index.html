@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ===================== NAVIGATION ===================== -->
+  <nav>
+    <div class="nav-logo">my<span>dashboard</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active">Home</button>
+      <button class="nav-tab">History</button>
+      <button class="nav-tab">Settings</button>
+    </div>
+  </nav>
+
+
+  <!-- ===================== MAIN CONTENT ===================== -->
+  <div class="page">
+
+
+    <!-- ───────────── WEATHER PANEL ───────────── -->
+    <div class="panel">
+
+      <div class="panel-header">
+        <div class="panel-icon sky-bg">🌤</div>
+        <div class="panel-title">Weather Lookup</div>
+      </div>
+
+      <div class="panel-body">
+
+        <!-- Inputs -->
+        <div class="field">
+          <label>City</label>
+          <input id="city" placeholder="e.g. Almaty" />
+        </div>
+        <div class="field">
+          <label>Forecast Days</label>
+          <input id="days" type="number" min="1" max="10" placeholder="1 – 10" />
+        </div>
+
+        <!-- Search button -->
+        <button class="btn btn-sky" onclick="getWeather()">Get Weather</button>
+
+        <!-- Error shown when the API call fails -->
+        <p class="error-msg" id="weather-error">
+          Could not fetch weather. Check the city name and try again.
+        </p>
+
+        <!-- Result — hidden by default, shown after a successful API call -->
+        <div class="weather-result" id="weather-result">
+          <div class="temp-display" id="temp">--<sup>°C</sup></div>
+          <div class="city-name"   id="city-name">—</div>
+
+          <div class="weather-meta">
+            <div class="badge">Feels like <strong id="feels">—</strong></div>
+            <div class="badge">Sky <strong id="sky-val">—</strong></div>
+          </div>
+
+          <div class="forecast-label">Forecast</div>
+          <div class="forecast-text" id="forecast">—</div>
+        </div>
+
+      </div>
+    </div>
+    <!-- ───────────── END WEATHER PANEL ───────────── -->
+
+
+    <!-- ───────────── BOOK PANEL ───────────── -->
+    <div class="panel">
+
+      <div class="panel-header">
+        <div class="panel-icon amber-bg">📚</div>
+        <div class="panel-title">Book Borrowing</div>
+      </div>
+
+      <div class="panel-body">
+
+        <!-- Search field -->
+        <div class="field">
+          <label>Search by title or author</label>
+          <input id="book-search" placeholder="e.g. Dostoevsky" />
+        </div>
+
+        <!-- Action buttons — wire each onclick to your API -->
+        <div class="book-actions">
+          <div class="action-row">
+            <button class="btn-sm amber" onclick="bookAction('borrow')">＋ Borrow Book</button>
+            <button class="btn-sm ghost" onclick="bookAction('return')">↩ Return Book</button>
+          </div>
+          <div class="action-row">
+            <button class="btn-sm ghost" onclick="bookAction('browse')">🔍 Browse Catalogue</button>
+            <button class="btn-sm ghost" onclick="bookAction('reserve')">🔖 Reserve</button>
+          </div>
+          <button class="btn-sm danger" onclick="bookAction('report')">⚠ Report Lost / Damaged</button>
+        </div>
+
+        <hr class="book-divider" />
+
+        <!-- Currently borrowed books table -->
+        <div class="forecast-label">Currently Borrowed</div>
+        <div class="book-table-wrap">
+          <table class="book-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Due</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="book-list">
+              <!-- Placeholder rows — replace with real data from your API -->
+              <tr>
+                <td>Crime and Punishment</td>
+                <td>Jun 18</td>
+                <td><span class="status-pill borrowed">Borrowed</span></td>
+              </tr>
+              <tr>
+                <td>The Master and Margarita</td>
+                <td>Jun 05</td>
+                <td><span class="status-pill overdue">Overdue</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <pre id="books-result" style="margin-top: 16px; color: var(--muted); font-size: 0.8rem;"></pre>
+      </div>
+    </div>
+    <!-- ───────────── END BOOK PANEL ───────────── -->
+
+    <!-- ───────────── ADD BOOK PANEL ───────────── -->
+    <div class="panel">
+
+      <div class="panel-header">
+        <div class="panel-icon amber-bg">➕</div>
+        <div class="panel-title">Add New Book</div>
+      </div>
+
+      <div class="panel-body">
+
+        <div class="field">
+          <label>Title</label>
+          <input id="b-title" placeholder="e.g. The Brothers Karamazov" />
+        </div>
+        <div class="field">
+          <label>Author</label>
+          <input id="b-author" placeholder="e.g. Fyodor Dostoevsky" />
+        </div>
+        <div class="field">
+          <label>Year</label>
+          <input id="b-year" type="number" placeholder="e.g. 1880" />
+        </div>
+
+        <button class="btn btn-amber" onclick="addBook()">＋ Add Book</button>
+
+        <p class="error-msg" id="book-error">Failed to add book. Check the fields and try again.</p>
+        <pre id="book-create-result" style="margin-top: 16px; color: var(--muted); font-size: 0.8rem;"></pre>
+
+      </div>
+    </div>
+<!-- ───────────── END ADD BOOK PANEL ───────────── -->
+
+        <!-- TEST PANEL -->
+    <div class="panel" style="grid-column: 1 / -1;">
+      <div class="panel-header">
+        <div class="panel-icon sky-bg">🧪</div>
+        <div class="panel-title">Dev Tools — Users</div>
+      </div>
+      <div class="panel-body">
+
+        <!-- Get all users -->
+        <button class="btn btn-sky" onclick="testGetAllUsers()">GET all users</button>
+
+        <hr class="book-divider" />
+
+        <!-- Create user -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <div class="field"><label>First name</label><input id="u-firstname" placeholder="Ivan" /></div>
+          <div class="field"><label>Last name</label><input id="u-lastname"  placeholder="Petrov" /></div>
+          <div class="field"><label>Email</label><input id="u-email"    placeholder="ivan@email.com" /></div>
+          <div class="field"><label>Password</label><input id="u-password" type="password" placeholder="••••••" /></div>
+        </div>
+        <button class="btn btn-amber" onclick="testCreateUser()">POST create user</button>
+
+        <hr class="book-divider" />
+
+        <!-- Delete user -->
+        <div class="field" style="max-width: 200px;">
+          <label>User ID to delete</label>
+          <input id="u-delete-id" type="number" placeholder="e.g. 3" />
+        </div>
+        <button class="btn btn-ghost" onclick="testDeleteUser()">DELETE user</button>
+
+        <!-- Result output -->
+        <pre id="users-result" style="margin-top: 16px; color: var(--muted); font-size: 0.8rem;"></pre>
+
+      </div>
+    </div>
+
+
+  </div><!-- end .page -->
+
+
+  <!-- ===================== JAVASCRIPT ===================== -->
+  <script src="app.js"></script>
+
+</body>
+</html>

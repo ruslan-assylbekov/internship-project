@@ -1,15 +1,13 @@
 import datetime
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 
 Base = declarative_base() # base for database models
 
 class users(Base):
     __tablename__ = 'users'
-    id = Column(Integer, primary_key=True)
-    email = Column(String)
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True)
     password = Column(String)
     firstname = Column(String)
     lastname = Column(String)
@@ -17,12 +15,11 @@ class users(Base):
 
 class books(Base):
     __tablename__ = 'books'
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String)
     author = Column(String)
     year = Column(Integer, default = 0)
     status = Column(String, default = "Available")
-    user_id = Column(Integer, ForeignKey('users.id'))
     created = Column(DateTime, default=datetime.datetime.utcnow)
 
 class borrowings(Base):

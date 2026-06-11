@@ -1,0 +1,447 @@
+/* ============================================================
+   DESIGN TOKENS  — change colors/fonts here, nowhere else
+   ============================================================ */
+:root {
+  --bg:        #0F1B2D;   /* page background */
+  --surface:   #1A2C42;   /* card background */
+  --surface2:  #223650;   /* input / inner element background */
+  --sky:       #4A9EDB;   /* weather accent (blue) */
+  --amber:     #F0A500;   /* book accent (yellow) */
+  --text:      #E8EEF4;   /* main text */
+  --muted:     #7A94B0;   /* labels, secondary text */
+  --danger:    #e05c5c;   /* error / overdue */
+  --radius:    14px;      /* corner rounding */
+}
+
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background:  var(--bg);
+  color:       var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height:  100vh;
+  padding-bottom: 60px;
+}
+
+
+/* ============================================================
+   NAVIGATION BAR
+   ============================================================ */
+nav {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  padding:         18px 40px;
+  border-bottom:   1px solid rgba(74, 158, 219, 0.15);
+}
+
+.nav-logo {
+  font-family:    'Space Grotesk', sans-serif;
+  font-weight:    700;
+  font-size:      1.15rem;
+  letter-spacing: -0.02em;
+  color:          var(--text);
+}
+
+/* Colored part of the logo */
+.nav-logo span {
+  color: var(--sky);
+}
+
+.nav-tabs {
+  display: flex;
+  gap:     6px;
+}
+
+.nav-tab {
+  background:  none;
+  border:      none;
+  color:       var(--muted);
+  font-family: 'Inter', sans-serif;
+  font-size:   0.85rem;
+  font-weight: 500;
+  padding:     7px 16px;
+  border-radius: 8px;
+  cursor:      pointer;
+  transition:  background 0.2s, color 0.2s;
+}
+
+.nav-tab:hover,
+.nav-tab.active {
+  background: var(--surface);
+  color:      var(--text);
+}
+
+
+/* ============================================================
+   PAGE LAYOUT  — two columns side by side
+   ============================================================ */
+.page {
+  max-width: 1080px;
+  margin:    0 auto;
+  padding:   40px 24px 0;
+  display:   grid;
+  grid-template-columns: 1fr 1fr;
+  gap:       28px;
+  align-items: start;
+}
+
+/* Stack to a single column on small screens */
+@media (max-width: 720px) {
+  .page { grid-template-columns: 1fr; }
+  nav   { padding: 14px 20px; }
+}
+
+
+/* ============================================================
+   PANEL (card)
+   ============================================================ */
+.panel {
+  background:    var(--surface);
+  border-radius: var(--radius);
+  overflow:      hidden;
+  border:        1px solid rgba(255, 255, 255, 0.06);
+}
+
+.panel-header {
+  padding:       20px 24px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  display:       flex;
+  align-items:   center;
+  gap:           10px;
+}
+
+/* Small coloured icon box in the panel header */
+.panel-icon {
+  width:         34px;
+  height:        34px;
+  border-radius: 8px;
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  font-size:     1rem;
+}
+
+.panel-icon.sky-bg   { background: rgba(74,  158, 219, 0.18); }
+.panel-icon.amber-bg { background: rgba(240, 165,   0, 0.18); }
+
+.panel-title {
+  font-family:    'Space Grotesk', sans-serif;
+  font-weight:    600;
+  font-size:      0.95rem;
+  letter-spacing: -0.01em;
+}
+
+.panel-body {
+  padding: 22px 24px;
+}
+
+
+/* ============================================================
+   FORM FIELDS  (label + input)
+   ============================================================ */
+.field {
+  margin-bottom: 14px;
+}
+
+.field label {
+  display:        block;
+  font-size:      0.75rem;
+  font-weight:    500;
+  color:          var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom:  6px;
+}
+
+.field input,
+.field select {
+  width:         100%;
+  background:    var(--surface2);
+  border:        1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9px;
+  color:         var(--text);
+  font-family:   'Inter', sans-serif;
+  font-size:     0.9rem;
+  padding:       10px 14px;
+  outline:       none;
+  transition:    border-color 0.2s;
+}
+
+/* Highlight border when the user clicks into the input */
+.field input:focus,
+.field select:focus {
+  border-color: var(--sky);
+}
+
+.field input::placeholder {
+  color: var(--muted);
+}
+
+
+/* ============================================================
+   BUTTONS  — full-width (used in weather panel)
+   ============================================================ */
+.btn {
+  width:         100%;
+  padding:       11px;
+  border:        none;
+  border-radius: 9px;
+  font-family:   'Space Grotesk', sans-serif;
+  font-weight:   600;
+  font-size:     0.9rem;
+  cursor:        pointer;
+  margin-top:    4px;
+  transition:    filter 0.2s, transform 0.12s;
+}
+
+.btn:hover  { filter: brightness(1.1); }
+.btn:active { transform: scale(0.98); }
+
+.btn-sky {
+  background: var(--sky);
+  color:      #fff;
+}
+
+.btn-amber {
+  background: var(--amber);
+  color:      #0F1B2D;
+}
+
+.btn-ghost {
+  background: var(--surface2);
+  color:      var(--text);
+  border:     1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 8px;
+}
+
+
+/* ============================================================
+   BUTTONS  — smaller, used in book panel
+   ============================================================ */
+.btn-sm {
+  padding:       10px 12px;
+  border:        none;
+  border-radius: 9px;
+  font-family:   'Space Grotesk', sans-serif;
+  font-weight:   600;
+  font-size:     0.82rem;
+  cursor:        pointer;
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  gap:           7px;
+  text-align:    center;
+  transition:    filter 0.2s, transform 0.12s;
+}
+
+.btn-sm:hover  { filter: brightness(1.1); }
+.btn-sm:active { transform: scale(0.97); }
+
+.btn-sm.amber {
+  background: var(--amber);
+  color:      #0F1B2D;
+}
+
+.btn-sm.ghost {
+  background: var(--surface2);
+  color:      var(--text);
+  border:     1px solid rgba(255, 255, 255, 0.08);
+}
+
+.btn-sm.danger {
+  background: rgba(224, 92, 92, 0.15);
+  color:      var(--danger);
+  border:     1px solid rgba(224, 92, 92, 0.2);
+}
+
+
+/* ============================================================
+   WEATHER  — result section (hidden until API responds)
+   ============================================================ */
+.weather-result {
+  display:       none;
+  margin-top:    20px;
+  padding-top:   20px;
+  border-top:    1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* JS adds this class to make it visible */
+.weather-result.visible {
+  display: block;
+}
+
+/* Big temperature number */
+.temp-display {
+  font-family:    'Space Grotesk', sans-serif;
+  font-size:      3.8rem;
+  font-weight:    700;
+  line-height:    1;
+  color:          var(--sky);
+  letter-spacing: -0.03em;
+  animation:      fadeUp 0.4s ease both;
+}
+
+/* The small "°C" superscript */
+.temp-display sup {
+  font-size:      1.4rem;
+  vertical-align: super;
+  color:          var(--muted);
+}
+
+.city-name {
+  font-size:     0.95rem;
+  color:         var(--muted);
+  margin-top:    4px;
+  margin-bottom: 16px;
+  font-weight:   400;
+}
+
+/* Row of small info badges (feels-like, sky) */
+.weather-meta {
+  display:       flex;
+  gap:           10px;
+  flex-wrap:     wrap;
+  margin-bottom: 16px;
+}
+
+.badge {
+  background:    var(--surface2);
+  border-radius: 7px;
+  padding:       6px 12px;
+  font-size:     0.78rem;
+  color:         var(--muted);
+}
+
+.badge strong {
+  color:       var(--text);
+  font-weight: 500;
+}
+
+/* Section label (e.g. "FORECAST") */
+.forecast-label {
+  font-size:      0.72rem;
+  font-weight:    500;
+  color:          var(--muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom:  8px;
+}
+
+.forecast-text {
+  font-size:   0.85rem;
+  color:       var(--text);
+  line-height: 1.65;
+  white-space: pre-line;   /* preserves newlines from the API */
+}
+
+/* Inline error message */
+.error-msg {
+  color:      var(--danger);
+  font-size:  0.85rem;
+  margin-top: 12px;
+  display:    none;
+}
+
+.error-msg.visible {
+  display: block;
+}
+
+
+/* ============================================================
+   BOOK PANEL  — action buttons layout
+   ============================================================ */
+.book-actions {
+  display:        flex;
+  flex-direction: column;
+  gap:            10px;
+  margin-bottom:  18px;
+}
+
+/* Two buttons side by side in one row */
+.action-row {
+  display:               grid;
+  grid-template-columns: 1fr 1fr;
+  gap:                   10px;
+}
+
+.book-divider {
+  border:     none;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin:     16px 0;
+}
+
+
+/* ============================================================
+   BOOK PANEL  — borrowed books table
+   ============================================================ */
+.book-table-wrap {
+  overflow-x: auto;   /* scroll sideways on small screens */
+}
+
+.book-table {
+  width:           100%;
+  border-collapse: collapse;
+  font-size:       0.82rem;
+}
+
+.book-table th {
+  text-align:     left;
+  padding:        7px 10px;
+  color:          var(--muted);
+  font-weight:    500;
+  font-size:      0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-bottom:  1px solid rgba(255, 255, 255, 0.06);
+}
+
+.book-table td {
+  padding:       10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color:         var(--text);
+}
+
+/* No divider after the last row */
+.book-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Coloured status pill inside the table */
+.status-pill {
+  display:       inline-block;
+  padding:       2px 9px;
+  border-radius: 20px;
+  font-size:     0.7rem;
+  font-weight:   600;
+  letter-spacing: 0.03em;
+}
+
+.status-pill.borrowed  { background: rgba(74,  158, 219, 0.2); color: var(--sky);    }
+.status-pill.available { background: rgba(80,  200, 120, 0.2); color: #5dc88a;       }
+.status-pill.overdue   { background: rgba(224,  92,  92, 0.2); color: var(--danger); }
+
+/* Shown when the borrowed list is empty */
+.empty-state {
+  text-align: center;
+  color:      var(--muted);
+  font-size:  0.85rem;
+  padding:    24px 0 8px;
+}
+
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}

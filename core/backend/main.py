@@ -7,8 +7,6 @@
 #
 #clean architecture (i dont know)
 
-
-
 import requests
 import time
 from pathlib import Path
@@ -18,16 +16,12 @@ from fastapi import Depends
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings
 
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
-
-from core.database.database_connect import init_db, get_db_session, Session
+from core.database.database_connect import init_db, Session
 from core.models.database_models import users, books, borrowings
+from core.schemas.user_schemas import UserCreate, UserResponse, BookCreate, BorrowingCreate
+
 
 class Settings(BaseSettings):
     api_key: str
@@ -95,14 +89,64 @@ def get_weather(city: str, days: int):
     }
 
 
-@app.post("/users")
-def create_user():
-    pass
 
 
-@app.get("/users/{user_id}")
-def get_user(user_id: int, db: DBSession = Depends(get_db)):
-    user = db.query(users).filter(users.id == user_id).first()
-    return {"id": user.id, "email": user.email, "name": user.firstname}
+@app.get("/users")
+def get_all_users(db: Session = Depends(get_db)):
+    all_users = db.query(users).all()
+    return all_users
+
+@app.get("/users/{user_id}", response_model=UserResponse)
+def get_user(user_id: int, db: Session = Depends(get_db)):
+    return db.query(users).filter(users.id == user_id).first()
+
+@app.post("/users", response_model=UserResponse)
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    new_user = users(**user.model_dump())
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)  # re-reads the row to get the generated id and created timestamp ?
+    return new_user
+
+@app.delete("/users/{user_id}")
+def delete_user(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(users).filter(users.id == user_id).first() # first ?
+
+    db.delete(user)
+    db.commit()
+    return {"detail": f"User {user_id} deleted"}
+
+
+
+
+
+@app.get("/books")
+def get_all_books(db: Session = Depends(get_db)):
+    all_books = db.query(books).all()
+    return all_books
+
+@app.post("/books")
+def create_book(book: BookCreate, db: Session = Depends(get_db)):
+    new_book = books(**book.model_dump())
+    db.add(new_book)
+    db.commit()
+    db.refresh(new_book)  # re-reads the row to get the generated id and created timestamp ?
+    return new_book
+
+@app.get("/books/{book_id}")
+def get_book(book_id: int, db: Session = Depends(get_db)):
+    book = db.query(books).filter(books.id == book_id).first()
+    return {"id": book.id, "title": book.title, "author": book.author, "year": book.year}
+
+@app.post("/borrowings")
+def borrow_book(borrowing: BorrowingCreate, db: Session = Depends(get_db)):
+    new_borrow = borrowings(**borrowings.model_dump())
+    db.add(new_borrow)
+    db.commit()
+    db.refresh(new_borrow)  # re-reads the row to get the generated id and created timestamp ?
+    return new_borrow
+
+
 
 #uvicorn core.backend.main:app --reload
+#.venv\Scripts\activate
