@@ -40,9 +40,9 @@ app.add_middleware(CORSMiddleware,
     allow_headers=["*"],
     )
 
-@app.on_event("startup")
-def startup():
-    init_db()
+# @app.on_event("startup")
+# def startup():
+#     init_db()
 
 def get_db():
     db = Session()
@@ -135,7 +135,7 @@ def get_book(book_id: int, db: Session = Depends(get_db)):
 
 @app.post("/borrowings")
 def borrow_book(borrowing: BorrowingCreate, db: Session = Depends(get_db)):
-    new_borrow = borrowings(**borrowings.model_dump())
+    new_borrow = borrowings(**borrowing.model_dump())
     db.add(new_borrow)
     db.commit()
     db.refresh(new_borrow)  # re-reads the row to get the generated id and created timestamp ?
