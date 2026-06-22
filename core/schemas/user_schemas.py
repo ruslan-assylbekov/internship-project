@@ -2,6 +2,13 @@ from pydantic import BaseModel, EmailStr
 from datetime import datetime
 
 
+class WeatherResponse(BaseModel):
+    city:     str
+    temperature:  float
+    feeling: float
+    clouds:  str
+    forecast: str
+
 # What the client sends when creating a user
 class UserCreate(BaseModel):
     email:     EmailStr

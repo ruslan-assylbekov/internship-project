@@ -3,7 +3,7 @@
 # docker
 #
 # clean architecture (i dont know)
-
+import http
 
 import requests
 import time
@@ -62,7 +62,7 @@ async def log_requests(request, call_next):
 
 @app.get("/")
 def homepage():
-    return FileResponse("index.html") # opens the html page. in pycharm you must open index.html through built in view
+    return http.HTTPStatus(200)
 
 @app.get("/weather/{city}/{days}")
 def get_weather(city: str, days: int):
