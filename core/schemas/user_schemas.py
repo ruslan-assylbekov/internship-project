@@ -32,6 +32,12 @@ class BookCreate(BaseModel):
     author: str
     year:   int
 
+class BookResponse(BaseModel):
+    id: int
+    title:  str
+    author: str
+    year:   int
+
 class BorrowingCreate(BaseModel):
     book_id: int
     user_id: int

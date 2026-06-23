@@ -29,4 +29,3 @@ class borrowings(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     borrow_date = Column(DateTime, default=datetime.datetime.utcnow)
     return_date = Column(DateTime)
-
