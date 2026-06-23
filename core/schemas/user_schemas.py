@@ -7,7 +7,6 @@ class WeatherResponse(BaseModel):
     temperature:  float
     feeling: float
     clouds:  str
-    forecast: str
 
 # What the client sends when creating a user
 class UserCreate(BaseModel):

@@ -3,7 +3,7 @@ import requests
 class WeatherService:
     def __init__(self, api_key: str):
         self.api_key = api_key
-        self.url = "http://api.weatherapi.com/v1/forecast.json"
+        self.url = "http://api.weatherapi.com/v1/current.json"
 
     def get_forecast(self, city: str):
         params = {
@@ -15,4 +15,6 @@ class WeatherService:
         return {
             "city": data["location"]["name"],
             "temperature": data["current"]["temp_c"],
+            "feeling": data["current"]["feelslike_c"],
+            "clouds": data["current"]["condition"]["text"],
         }
