@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from src.services.weather_service import WeatherService
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from src.schemas.user_schemas import WeatherResponse
+from src.schemas.weather_schemas import WeatherResponse
 
 
 class Settings(BaseSettings):

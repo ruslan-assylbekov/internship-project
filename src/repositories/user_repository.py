@@ -25,3 +25,6 @@ class UserRepository:
             self.db.commit()
             return True
         return False
+    
+    def get_by_email(self, email: str):
+        return self.db.query(users).filter(users.email == email).first()
