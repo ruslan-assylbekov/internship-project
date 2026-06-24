@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
 from datetime import datetime
 
 
@@ -17,14 +17,13 @@ class UserCreate(BaseModel):
 
 # What the API returns (no password)
 class UserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id:        int
     email:     str
     firstname: str
     lastname:  str
     created:   datetime
-
-    class Config:
-        from_attributes = True  # lets Pydantic read SQLAlchemy objects directly
 
 class BookCreate(BaseModel):
     title:  str
@@ -32,6 +31,8 @@ class BookCreate(BaseModel):
     year:   int
 
 class BookResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     title:  str
     author: str

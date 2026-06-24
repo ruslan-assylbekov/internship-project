@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from core.models.database_models import books
+from src.models.database_models import books
 
 class BookRepository:
     def __init__(self, db: Session):
@@ -17,3 +17,11 @@ class BookRepository:
         self.db.commit()
         self.db.refresh(new_book)
         return new_book
+
+    def delete(self, book_id: int):
+        book = self.get_by_id(book_id)
+        if book:
+            self.db.delete(book)
+            self.db.commit()
+            return True
+        return False

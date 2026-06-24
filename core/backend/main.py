@@ -1,13 +1,7 @@
-#TODO
-#
-
 import time
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from core.routers import user_router, book_router, weather_router
-
+from src.api import book_router, user_router, weather_router
 
 app = FastAPI()
 
@@ -28,11 +22,9 @@ async def log_requests(request, call_next):
     response.headers["request-process-time"] = f"{duration:.4f}" # можно вот так создавать свой header
     return response
 
-
 app.include_router(user_router.router)
 app.include_router(book_router.router)
 app.include_router(weather_router.router)
-
 
 #uvicorn core.backend.main:app --reload
 #.venv\Scripts\activate
