@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 from fastapi.testclient import TestClient
 
-from core.backend.main import app
+from src.main import app
 from src.api.user_router import get_user_service
 from src.repositories.user_repository import UserRepository
 from src.services.user_service import UserService

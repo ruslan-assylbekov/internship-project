@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, patch
 
 from fastapi.testclient import TestClient
 
-from core.backend.main import app
+from src.main import app
 from src.api.weather_router import get_weather_service
 from src.services.weather_service import WeatherService
 

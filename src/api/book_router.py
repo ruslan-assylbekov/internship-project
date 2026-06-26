@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from core.database.database_connect import get_session
+from src.core.database.database_connect import get_session
 from src.repositories.book_repository import BookRepository
 from src.schemas.book_schemas import BookCreate, BookResponse
 from src.services.book_service import BookService

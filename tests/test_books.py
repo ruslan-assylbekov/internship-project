@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 from fastapi.testclient import TestClient
 
-from core.backend.main import app
+from src.main import app
 from src.api.book_router import get_book_service
 from src.repositories.book_repository import BookRepository
 from src.services.book_service import BookService
