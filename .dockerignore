@@ -2,3 +2,6 @@
 __pycache__
 .git
 .env
+.pytest_cache
+*.pyc
+internship.bundle

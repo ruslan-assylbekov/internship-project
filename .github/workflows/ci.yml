@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.14"
+          # uv's cache keyed on uv.lock; without it every run resolves and
+          # downloads the full dependency graph again.
+          enable-cache: true
+
+      # --locked rather than plain `uv sync`: CI must fail if uv.lock is stale
+      # against pyproject.toml instead of silently resolving something else.
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Lint
+        run: uv run ruff check .
+
+      # Allowed to fail: the formatter is being adopted incrementally, so the
+      # tree is not fully `ruff format`-clean yet. This step exists to show the
+      # remaining diff without blocking unrelated work; drop continue-on-error
+      # once the tree is formatted.
+      - name: Format check
+        run: uv run ruff format --check .
+        continue-on-error: true
+
+      # No `services:` block on purpose. Most tests mock their collaborators,
+      # and tests/test_integration.py uses in-memory SQLite rather than a real
+      # server, so the suite needs neither a Postgres container nor network
+      # access. The Alembic migrations are Postgres-only and stay unexercised
+      # here; adding a services block would be the way to cover them.
+      - name: Tests
+        run: uv run pytest

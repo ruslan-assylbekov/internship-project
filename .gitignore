@@ -6,7 +6,10 @@ venv/
 __pycache__/
 *.pyc
 
-# Environment variables
+# Test / tool caches
+.pytest_cache/
+
+# Environment variables (.env.example is tracked on purpose)
 .env
 
 # IDE files
@@ -16,4 +19,10 @@ __pycache__/
 # OS files
 .DS_Store
 
+# Local git bundle export
+*.bundle
+
 .agents
+.claude
+
+CLAUDE.md

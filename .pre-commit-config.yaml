@@ -1,0 +1,20 @@
+# Install with: uvx pre-commit install
+# (via uvx because pre-commit is a developer tool, not a dependency of the app)
+#
+# Only ruff runs here. The test suite is fast, but it is not a pre-commit hook:
+# a lint failure points at the line to change, whereas a failing test usually
+# means the commit is not ready, and blocking `git commit` on that pushes people
+# towards --no-verify. CI runs pytest instead.
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Pinned to the ruff version declared in pyproject.toml's dev group, so the
+    # hook and `uv run ruff` cannot disagree about what is an error.
+    rev: v0.16.3
+    hooks:
+      # Lint only; the fixable subset is applied deliberately, not on commit,
+      # because ruff's import sorting rewrites files the author is mid-edit on.
+      - id: ruff
+        args: [--no-fix]
+      # The formatter is still being adopted (see .github/workflows/ci.yml), so
+      # it formats what is committed rather than gating on the whole tree.
+      - id: ruff-format

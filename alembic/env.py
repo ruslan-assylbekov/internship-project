@@ -1,7 +1,8 @@
 import os
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config, create_engine  # Add create_engine
-from sqlalchemy import pool
+
+from sqlalchemy import create_engine
+
 from alembic import context
 
 # Import your models here
@@ -18,19 +19,31 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 
-def run_migrations_online() -> None:
-    """Run migrations in 'online' mode."""
-
-    # 1. Get the URL from environment variable or fallback
-    url = os.getenv(
+def get_url() -> str:
+    """Connection URL, matching the fallback used by the application."""
+    return os.getenv(
         "DATABASE_URL",
-        "postgresql://postgres:a2bf9c79@localhost:5432/internship-project"
+        "postgresql://postgres:a2bf9c79@localhost:5432/internship-project",
     )
 
-    # 2. Create the engine manually
-    connectable = create_engine(url)
 
-    # 3. Connect and run migrations
+def run_migrations_offline() -> None:
+    """Run migrations in 'offline' mode: emit SQL without connecting."""
+    context.configure(
+        url=get_url(),
+        target_metadata=target_metadata,
+        literal_binds=True,
+        dialect_opts={"paramstyle": "named"},
+    )
+
+    with context.begin_transaction():
+        context.run_migrations()
+
+
+def run_migrations_online() -> None:
+    """Run migrations in 'online' mode against a live connection."""
+    connectable = create_engine(get_url())
+
     with connectable.connect() as connection:
         context.configure(
             connection=connection,
@@ -41,7 +54,6 @@ def run_migrations_online() -> None:
             context.run_migrations()
 
 
-# Ensure the rest of the file stays as generated (calls run_migrations_offline/online)
 if context.is_offline_mode():
     run_migrations_offline()
 else:

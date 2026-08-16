@@ -1,16 +1,42 @@
 /* ============================================================
+   THE LENDING LIBRARY — circulation desk
+
+   Design direction: the date-due card. Before barcodes, every library book
+   carried a paper pocket with a typewritten card, stamped in violet aniline
+   ink each time it circulated. That artifact maps onto this app exactly: a
+   borrowing is a stamped line, a status is an impression, a due date is the
+   stamped date. So the furniture is dark cabinet wood, the content sits on
+   buff card stock, and the ink does the talking.
+
+   Corners are square throughout: card stock is cut, not rounded.
+   ============================================================ */
+
+/* ============================================================
    DESIGN TOKENS  — change colors/fonts here, nowhere else
    ============================================================ */
 :root {
-  --bg:        #0F1B2D;   /* page background */
-  --surface:   #1A2C42;   /* card background */
-  --surface2:  #223650;   /* input / inner element background */
-  --sky:       #4A9EDB;   /* weather accent (blue) */
-  --amber:     #F0A500;   /* book accent (yellow) */
-  --text:      #E8EEF4;   /* main text */
-  --muted:     #7A94B0;   /* labels, secondary text */
-  --danger:    #e05c5c;   /* error / overdue */
-  --radius:    14px;      /* corner rounding */
+  /* Furniture: the catalogue cabinet the cards live in. */
+  --oak:        #221D1A;
+  --oak-deep:   #17130F;   /* wells and insets, i.e. an open drawer */
+  --oak-edge:   #3A322B;   /* hairline between furniture and paper */
+
+  /* Paper: cool manila card stock, greyer than a warm cream. */
+  --card:       #E4DFCE;
+  --card-shade: #D6D0BC;   /* the next card down in the stack */
+  --card-edge:  #BFB7A0;
+
+  /* Inks. */
+  --ink:        #2A2724;   /* typewriter ribbon */
+  --ink-soft:   #6B6459;   /* faded carbon copy, for secondary text */
+  --stamp:      #5C4B8A;   /* violet aniline date stamp */
+  --oxide:      #A33F2B;   /* overdue, lost, delete */
+
+  /* Text on the furniture rather than on paper. */
+  --on-oak:     #C8BFA9;
+  --on-oak-dim: #8A8072;
+
+  --rule:       1px;
+  --sheet-max:  1120px;
 }
 
 
@@ -24,424 +50,937 @@
 }
 
 body {
-  background:  var(--bg);
-  color:       var(--text);
-  font-family: 'Inter', sans-serif;
-  min-height:  100vh;
-  padding-bottom: 60px;
+  background: var(--oak);
+  color: var(--on-oak);
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* One visible focus treatment for the whole page. Both properties are set
+   because the ring has to read on paper and on wood alike. */
+:focus-visible {
+  outline: 2px solid var(--stamp);
+  outline-offset: 2px;
+}
+
+.sheet :focus-visible {
+  outline-color: var(--stamp);
+}
+
+.masthead :focus-visible,
+.drawer :focus-visible {
+  outline-color: var(--on-oak);
 }
 
 
 /* ============================================================
-   NAVIGATION BAR
+   TYPE ROLES
+   Archivo Narrow = drawer and spine labels (condensed, stencilled caps)
+   Cutive Mono    = anything typed onto a card, and every stamp
+   Spectral       = reading text
    ============================================================ */
-nav {
-  display:         flex;
-  align-items:     center;
-  justify-content: space-between;
-  padding:         18px 40px;
-  border-bottom:   1px solid rgba(74, 158, 219, 0.15);
+.label,
+.field label,
+.ledger th,
+.btn,
+.btn-sm,
+.wordmark,
+.section-title {
+  font-family: 'Archivo Narrow', 'Arial Narrow', sans-serif;
 }
 
-.nav-logo {
-  font-family:    'Space Grotesk', sans-serif;
-  font-weight:    700;
-  font-size:      1.15rem;
-  letter-spacing: -0.02em;
-  color:          var(--text);
+.typed,
+.stamp,
+.card-no,
+.ledger td.year,
+.due-date,
+.temp-reading {
+  font-family: 'Cutive Mono', 'Courier New', monospace;
 }
 
-/* Colored part of the logo */
-.nav-logo span {
-  color: var(--sky);
+/* Small caps label, used for drawer fronts and field names. */
+.label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 0.5rem;
 }
 
-.nav-tabs {
+.label-on-oak {
+  color: var(--on-oak-dim);
+}
+
+
+/* ============================================================
+   MASTHEAD  — the cabinet's top rail: wordmark, and the borrower's card
+   ============================================================ */
+.masthead {
+  border-bottom: var(--rule) solid var(--oak-edge);
+  background: var(--oak-deep);
+}
+
+.masthead-inner {
+  max-width: var(--sheet-max);
+  margin: 0 auto;
+  padding: 22px 28px 18px;
   display: flex;
-  gap:     6px;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
 }
 
-.nav-tab {
-  background:  none;
-  border:      none;
-  color:       var(--muted);
-  font-family: 'Inter', sans-serif;
-  font-size:   0.85rem;
+.wordmark {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: #E8E2D2;
+  line-height: 1;
+}
+
+/* Double rule, the way a card's ruled head is printed. */
+.wordmark-rules {
+  margin-top: 9px;
+  border-top: 2px solid var(--stamp);
+  border-bottom: var(--rule) solid var(--oak-edge);
+  height: 4px;
+  width: clamp(150px, 22vw, 260px);
+}
+
+.wordmark-sub {
+  margin-top: 8px;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--on-oak-dim);
+  font-family: 'Archivo Narrow', sans-serif;
+}
+
+/* The borrower's card: a real ticket, not three tabs that do nothing. The
+   number is the account's own id, so it is data rather than decoration. */
+.borrower-card {
+  background: var(--card);
+  color: var(--ink);
+  padding: 10px 16px 11px;
+  min-width: 208px;
+  border: var(--rule) solid var(--card-edge);
+  /* Two stacked cards, offset, as they sit in a pocket. */
+  box-shadow:
+    3px 3px 0 0 var(--card-shade),
+    3px 3px 0 var(--rule) var(--card-edge);
+}
+
+.card-no {
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  color: var(--stamp);
+}
+
+.card-holder {
+  font-family: 'Spectral', Georgia, serif;
+  font-size: 0.9rem;
   font-weight: 500;
-  padding:     7px 16px;
-  border-radius: 8px;
-  cursor:      pointer;
-  transition:  background 0.2s, color 0.2s;
+  margin-top: 2px;
+  /* An email can be long; the card must not stretch the rail. */
+  overflow-wrap: anywhere;
 }
 
-.nav-tab:hover,
-.nav-tab.active {
-  background: var(--surface);
-  color:      var(--text);
+.card-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 7px;
+  padding-top: 6px;
+  border-top: var(--rule) dashed var(--card-edge);
+}
+
+/* How many books are out on this ticket. Its own class rather than an inline
+   override of .label, which would only be undone again by the next rule. */
+.card-loans {
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.card-loans .typed {
+  font-size: 0.82rem;
+  color: var(--stamp);
+  letter-spacing: 0;
 }
 
 
 /* ============================================================
-   PAGE LAYOUT  — two columns side by side
+   LAYOUT
    ============================================================ */
-.page {
-  max-width: 1080px;
-  margin:    0 auto;
-  padding:   40px 24px 0;
-  display:   grid;
+.desk {
+  max-width: var(--sheet-max);
+  margin: 0 auto;
+  padding: 30px 28px 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* A sheet of card stock. The offset shadow is a second card behind it.
+   Deliberately untextured: hairline repeating gradients were invisible at
+   every zoom level tested and only risked shimmer while scrolling. The paper
+   reads as paper from its colour, its cut corners and that second card. */
+.sheet {
+  background: var(--card);
+  color: var(--ink);
+  border: var(--rule) solid var(--card-edge);
+  padding: 26px 28px 30px;
+  box-shadow: 4px 4px 0 0 var(--card-shade);
+}
+
+.sheet-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding-bottom: 12px;
+  margin-bottom: 22px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.section-title {
+  font-size: 1.12rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+  line-height: 1.1;
+}
+
+/* Sits beside a title to say what the section is for, in one line. */
+.section-note {
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  font-style: italic;
+  max-width: 46ch;
+}
+
+/* Two sheets side by side, for the two secondary jobs. The catalogue is not
+   one of them: it needs the full width, or titles wrap and the per-row actions
+   stack three deep. */
+.desk-pair {
+  display: grid;
   grid-template-columns: 1fr 1fr;
-  gap:       28px;
-  align-items: start;
+  gap: 30px;
+  /* Stretch, not start: two sheets of card stock lying side by side on a desk
+     square up with each other. */
+  align-items: stretch;
 }
 
-/* Stack to a single column on small screens */
-@media (max-width: 720px) {
-  .page { grid-template-columns: 1fr; }
-  nav   { padding: 14px 20px; }
-}
-
-
-/* ============================================================
-   PANEL (card)
-   ============================================================ */
-.panel {
-  background:    var(--surface);
-  border-radius: var(--radius);
-  overflow:      hidden;
-  border:        1px solid rgba(255, 255, 255, 0.06);
-}
-
-.panel-header {
-  padding:       20px 24px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  display:       flex;
-  align-items:   center;
-  gap:           10px;
-}
-
-/* Small coloured icon box in the panel header */
-.panel-icon {
-  width:         34px;
-  height:        34px;
-  border-radius: 8px;
-  display:       flex;
-  align-items:   center;
-  justify-content: center;
-  font-size:     1rem;
-}
-
-.panel-icon.sky-bg   { background: rgba(74,  158, 219, 0.18); }
-.panel-icon.amber-bg { background: rgba(240, 165,   0, 0.18); }
-
-.panel-title {
-  font-family:    'Space Grotesk', sans-serif;
-  font-weight:    600;
-  font-size:      0.95rem;
-  letter-spacing: -0.01em;
-}
-
-.panel-body {
-  padding: 22px 24px;
+@media (max-width: 780px) {
+  .desk-pair { grid-template-columns: 1fr; }
 }
 
 
 /* ============================================================
-   FORM FIELDS  (label + input)
+   FORM FIELDS
    ============================================================ */
 .field {
-  margin-bottom: 14px;
+  margin-bottom: 15px;
 }
 
-.field label {
-  display:        block;
-  font-size:      0.75rem;
-  font-weight:    500;
-  color:          var(--muted);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin-bottom:  6px;
-}
-
+/* Typed into, so it is set in the typewriter face and ruled underneath
+   instead of boxed: a line to write on, like the card it stands for. */
 .field input,
 .field select {
-  width:         100%;
-  background:    var(--surface2);
-  border:        1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 9px;
-  color:         var(--text);
-  font-family:   'Inter', sans-serif;
-  font-size:     0.9rem;
-  padding:       10px 14px;
-  outline:       none;
-  transition:    border-color 0.2s;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: var(--rule) solid var(--card-edge);
+  border-radius: 0;
+  color: var(--ink);
+  font-family: 'Cutive Mono', 'Courier New', monospace;
+  font-size: 0.95rem;
+  padding: 7px 2px;
+  transition: border-color 0.15s, background 0.15s;
 }
 
-/* Highlight border when the user clicks into the input */
+.field input:hover:not(:disabled),
+.field select:hover:not(:disabled) {
+  background: rgba(92, 75, 138, 0.04);
+}
+
 .field input:focus,
 .field select:focus {
-  border-color: var(--sky);
+  border-bottom-color: var(--stamp);
+  border-bottom-width: 2px;
+  /* Compensate the extra pixel so the field does not jump on focus. */
+  padding-bottom: 6px;
+  outline: none;
+  background: rgba(92, 75, 138, 0.05);
 }
 
 .field input::placeholder {
-  color: var(--muted);
+  color: var(--ink-soft);
+  opacity: 0.62;
+}
+
+/* The native dropdown inherits none of the above and would otherwise render
+   dark-on-dark on some platforms. */
+.field select option {
+  background: var(--card);
+  color: var(--ink);
+}
+
+.field input:disabled,
+.field select:disabled {
+  color: var(--ink-soft);
+  border-bottom-style: dashed;
+  cursor: not-allowed;
+}
+
+/* Two fields on one line, e.g. first and last name. */
+.field-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 520px) {
+  .field-pair { grid-template-columns: 1fr; }
 }
 
 
 /* ============================================================
-   BUTTONS  — full-width (used in weather panel)
+   BUTTONS  — a pressed key, not a rounded pill
    ============================================================ */
-.btn {
-  width:         100%;
-  padding:       11px;
-  border:        none;
-  border-radius: 9px;
-  font-family:   'Space Grotesk', sans-serif;
-  font-weight:   600;
-  font-size:     0.9rem;
-  cursor:        pointer;
-  margin-top:    4px;
-  transition:    filter 0.2s, transform 0.12s;
-}
-
-.btn:hover  { filter: brightness(1.1); }
-.btn:active { transform: scale(0.98); }
-
-.btn-sky {
-  background: var(--sky);
-  color:      #fff;
-}
-
-.btn-amber {
-  background: var(--amber);
-  color:      #0F1B2D;
-}
-
-.btn-ghost {
-  background: var(--surface2);
-  color:      var(--text);
-  border:     1px solid rgba(255, 255, 255, 0.08);
-  margin-top: 8px;
-}
-
-
-/* ============================================================
-   BUTTONS  — smaller, used in book panel
-   ============================================================ */
+.btn,
 .btn-sm {
-  padding:       10px 12px;
-  border:        none;
-  border-radius: 9px;
-  font-family:   'Space Grotesk', sans-serif;
-  font-weight:   600;
-  font-size:     0.82rem;
-  cursor:        pointer;
-  display:       flex;
-  align-items:   center;
-  justify-content: center;
-  gap:           7px;
-  text-align:    center;
-  transition:    filter 0.2s, transform 0.12s;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 0;
+  transition: transform 0.1s, box-shadow 0.1s, background 0.15s, color 0.15s;
 }
 
-.btn-sm:hover  { filter: brightness(1.1); }
-.btn-sm:active { transform: scale(0.97); }
-
-.btn-sm.amber {
-  background: var(--amber);
-  color:      #0F1B2D;
+.btn {
+  width: 100%;
+  padding: 11px 14px;
+  font-size: 0.82rem;
+  margin-top: 6px;
+  background: var(--ink);
+  color: var(--card);
+  border: var(--rule) solid var(--ink);
+  box-shadow: 3px 3px 0 0 var(--card-edge);
 }
 
-.btn-sm.ghost {
-  background: var(--surface2);
-  color:      var(--text);
-  border:     1px solid rgba(255, 255, 255, 0.08);
+.btn:hover:not(:disabled) {
+  background: var(--stamp);
+  border-color: var(--stamp);
+  color: #F3EFE2;
+}
+
+/* Travel: the key goes down onto its own shadow. */
+.btn:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 0 var(--card-edge);
+}
+
+/* The one violet action per view: the thing this sheet exists to do. */
+.btn-stamp {
+  background: var(--stamp);
+  border-color: var(--stamp);
+  color: #F3EFE2;
+}
+
+.btn-stamp:hover:not(:disabled) {
+  background: #4A3B72;
+  border-color: #4A3B72;
+}
+
+.btn-quiet {
+  background: transparent;
+  color: var(--ink);
+  border: var(--rule) solid var(--card-edge);
+  box-shadow: none;
+}
+
+.btn-quiet:hover:not(:disabled) {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--card);
+}
+
+.btn-quiet:active:not(:disabled) {
+  transform: translate(1px, 1px);
+}
+
+.btn-sm {
+  padding: 6px 11px;
+  font-size: 0.72rem;
+  background: transparent;
+  color: var(--ink);
+  border: var(--rule) solid var(--card-edge);
+  white-space: nowrap;
+}
+
+.btn-sm:hover:not(:disabled) {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--card);
+}
+
+.btn-sm:active:not(:disabled) {
+  transform: translate(1px, 1px);
+}
+
+.btn-sm.primary:hover:not(:disabled) {
+  background: var(--stamp);
+  border-color: var(--stamp);
+  color: #F3EFE2;
 }
 
 .btn-sm.danger {
-  background: rgba(224, 92, 92, 0.15);
-  color:      var(--danger);
-  border:     1px solid rgba(224, 92, 92, 0.2);
+  color: var(--oxide);
+  border-color: rgba(163, 63, 43, 0.4);
+}
+
+.btn-sm.danger:hover:not(:disabled) {
+  background: var(--oxide);
+  border-color: var(--oxide);
+  color: #F5EEE7;
+}
+
+/* Disabled controls stop reacting entirely, so a greyed-out button never
+   looks like it might still do something. */
+.btn:disabled,
+.btn-sm:disabled {
+  color: var(--ink-soft);
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--card-edge);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* Buttons sitting on the furniture rather than on paper. The paper button's
+   drop shadow is a light colour and would glow against the dark, so it goes. */
+.btn-on-oak {
+  background: transparent;
+  color: var(--on-oak);
+  border: var(--rule) solid var(--oak-edge);
+  box-shadow: none;
+}
+
+.btn-on-oak:hover:not(:disabled) {
+  background: var(--on-oak);
+  border-color: var(--on-oak);
+  color: var(--oak-deep);
+}
+
+.btn-on-oak:active:not(:disabled) {
+  transform: translate(1px, 1px);
 }
 
 
 /* ============================================================
-   WEATHER  — result section (hidden until API responds)
+   STAMPS  — the signature of the design
+
+   An impression, not a badge: violet ink multiplied into the paper, ruled
+   box, rotated a degree or two off square, and never quite even. Every
+   status in the API vocabulary gets one.
+
+   Inks are chosen dark enough to clear 4.5:1 on card stock -- a faded stamp
+   is period-accurate and unreadable, and the status is load-bearing here.
    ============================================================ */
-.weather-result {
-  display:       none;
-  margin-top:    20px;
-  padding-top:   20px;
-  border-top:    1px solid rgba(255, 255, 255, 0.06);
+.stamp {
+  display: inline-block;
+  padding: 3px 9px 2px;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--stamp);
+  border: 2px solid var(--stamp);
+  background: transparent;
+  /* Ink sinks into the stock instead of sitting on top of it. */
+  mix-blend-mode: multiply;
+  transform: rotate(-1.5deg);
+  white-space: nowrap;
 }
 
-/* JS adds this class to make it visible */
+/* Alternating tilt, so a column of stamps does not look printed by a machine. */
+tr:nth-child(even) .stamp { transform: rotate(1.2deg); }
+
+.stamp.available {
+  color: #3D5C31;
+  border-color: #3D5C31;
+}
+
+.stamp.borrowed,
+.stamp.active {
+  color: #4A3B72;
+  border-color: #4A3B72;
+}
+
+.stamp.reserved {
+  color: #7A5A20;
+  border-color: #7A5A20;
+  border-style: double;
+  border-width: 3px;
+}
+
+/* Written off. Struck through, because the copy is gone. */
+.stamp.lost {
+  color: var(--oxide);
+  border-color: var(--oxide);
+  text-decoration: line-through;
+}
+
+.stamp.returned {
+  color: var(--ink-soft);
+  border-color: var(--ink-soft);
+}
+
+.stamp.overdue {
+  color: var(--oxide);
+  border-color: var(--oxide);
+  border-width: 3px;
+  font-weight: 700;
+}
+
+
+/* ============================================================
+   DATE-DUE CARDS  — what is checked out to you
+
+   Each loan is the pocket card from the back of the book: the title typed
+   along the top, the return date stamped below it.
+   ============================================================ */
+.due-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(258px, 1fr));
+  gap: 20px;
+}
+
+.due-card {
+  background: var(--card);
+  border: var(--rule) solid var(--card-edge);
+  padding: 15px 17px 17px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 3px 3px 0 0 var(--card-shade);
+  /* The ruled lines of a real date-due card, behind the content. */
+  background-image:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0 27px,
+      rgba(42, 39, 36, 0.07) 27px 28px
+    );
+}
+
+.due-card-title {
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.35;
+  /* Long titles wrap rather than widening the card. */
+  overflow-wrap: anywhere;
+}
+
+.due-card-author {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin-top: 1px;
+}
+
+/* The stamped impression: DATE DUE over the date itself. */
+.due-block {
+  align-self: flex-start;
+  padding: 7px 13px 8px;
+  border: 2px solid var(--stamp);
+  color: var(--stamp);
+  mix-blend-mode: multiply;
+  opacity: 0.9;
+  transform: rotate(-1.8deg);
+  text-align: center;
+}
+
+.due-block.is-overdue {
+  border-color: var(--oxide);
+  color: var(--oxide);
+  border-width: 3px;
+  opacity: 1;
+  transform: rotate(2.2deg);
+}
+
+/* No date at all: a reservation is a hold, so nothing is due back yet. */
+.due-block.is-hold {
+  border-style: dashed;
+  border-width: 2px;
+  color: #8A6A2F;
+  border-color: #8A6A2F;
+  transform: rotate(-0.8deg);
+}
+
+.due-eyebrow {
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  display: block;
+  border-bottom: var(--rule) solid currentColor;
+  padding-bottom: 2px;
+  margin-bottom: 4px;
+  opacity: 0.85;
+}
+
+.due-date {
+  font-size: 1.02rem;
+  letter-spacing: 0.05em;
+  display: block;
+  line-height: 1.2;
+}
+
+.due-note {
+  font-size: 0.75rem;
+  color: var(--oxide);
+  font-weight: 500;
+}
+
+.due-card-foot {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: var(--rule) dashed var(--card-edge);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+
+/* ============================================================
+   LEDGER  — the catalogue as an accession register
+   ============================================================ */
+.ledger-controls {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 18px;
+  align-items: end;
+  margin-bottom: 22px;
+}
+
+@media (max-width: 620px) {
+  .ledger-controls { grid-template-columns: 1fr; }
+}
+
+.ledger-wrap {
+  overflow-x: auto;
+}
+
+.ledger {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.ledger th {
+  text-align: left;
+  padding: 0 12px 7px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  border-bottom: 2px solid var(--ink);
+  white-space: nowrap;
+  /* The catalogue is long enough to scroll past; the column names follow so
+     the Status and Action columns stay identifiable. Opaque, or rows would
+     show through as they pass under. */
+  position: sticky;
+  top: 0;
+  background: var(--card);
+  z-index: 1;
+}
+
+.ledger td {
+  padding: 9px 12px;
+  /* Oxide ruling, as ledgers are ruled in red. */
+  border-bottom: var(--rule) solid rgba(163, 63, 43, 0.16);
+  vertical-align: middle;
+}
+
+.ledger tbody tr:hover td {
+  background: rgba(92, 75, 138, 0.05);
+}
+
+.ledger .title {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+  /* Enough for a long title on one or two lines, so the action column is not
+     squeezed into a vertical stack of buttons. */
+  min-width: 15ch;
+}
+
+.ledger .author {
+  color: var(--ink-soft);
+  font-style: italic;
+  min-width: 12ch;
+}
+
+.ledger .year {
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+/* Per-row actions stay on one line; the table scrolls sideways on a narrow
+   screen rather than growing a three-deep button stack in every row. */
+.row-actions {
+  display: flex;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* An empty table is an invitation, so it is centred and given room. */
+.empty-state {
+  text-align: center;
+  color: var(--ink-soft);
+  font-style: italic;
+  padding: 30px 12px;
+}
+
+
+/* ============================================================
+   DRAWER  — a dark inset for what is not library business.
+   The weather lookup lives here: useful, but not the desk's job.
+   ============================================================ */
+.drawer {
+  background: var(--oak-deep);
+  border: var(--rule) solid var(--oak-edge);
+  color: var(--on-oak);
+  padding: 20px 22px 22px;
+}
+
+.drawer .label {
+  color: var(--on-oak-dim);
+}
+
+.drawer .field input {
+  color: #E8E2D2;
+  border-bottom-color: var(--oak-edge);
+}
+
+.drawer .field input::placeholder {
+  color: var(--on-oak-dim);
+  opacity: 0.7;
+}
+
+.drawer .field input:hover:not(:disabled),
+.drawer .field input:focus {
+  background: rgba(200, 191, 169, 0.06);
+  border-bottom-color: var(--on-oak);
+}
+
+.drawer-title {
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #E8E2D2;
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+  border-bottom: var(--rule) solid var(--oak-edge);
+}
+
+.weather-result {
+  display: none;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: var(--rule) dashed var(--oak-edge);
+}
+
 .weather-result.visible {
   display: block;
 }
 
-/* Big temperature number */
-.temp-display {
-  font-family:    'Space Grotesk', sans-serif;
-  font-size:      3.8rem;
-  font-weight:    700;
-  line-height:    1;
-  color:          var(--sky);
-  letter-spacing: -0.03em;
-  animation:      fadeUp 0.4s ease both;
+.temp-reading {
+  font-size: 2.6rem;
+  line-height: 1;
+  color: #E8E2D2;
+  letter-spacing: -0.01em;
 }
 
-/* The small "°C" superscript */
-.temp-display sup {
-  font-size:      1.4rem;
+.temp-reading sup {
+  font-size: 0.9rem;
   vertical-align: super;
-  color:          var(--muted);
+  color: var(--on-oak-dim);
+  letter-spacing: 0.04em;
 }
 
-.city-name {
-  font-size:     0.95rem;
-  color:         var(--muted);
-  margin-top:    4px;
-  margin-bottom: 16px;
-  font-weight:   400;
-}
-
-/* Row of small info badges (feels-like, sky) */
-.weather-meta {
-  display:       flex;
-  gap:           10px;
-  flex-wrap:     wrap;
-  margin-bottom: 16px;
-}
-
-.badge {
-  background:    var(--surface2);
-  border-radius: 7px;
-  padding:       6px 12px;
-  font-size:     0.78rem;
-  color:         var(--muted);
-}
-
-.badge strong {
-  color:       var(--text);
-  font-weight: 500;
-}
-
-/* Section label (e.g. "FORECAST") */
-.forecast-label {
-  font-size:      0.72rem;
-  font-weight:    500;
-  color:          var(--muted);
-  letter-spacing: 0.05em;
+.reading-place {
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  margin-bottom:  8px;
+  color: var(--on-oak-dim);
+  margin-top: 7px;
 }
 
-.forecast-text {
-  font-size:   0.85rem;
-  color:       var(--text);
-  line-height: 1.65;
-  white-space: pre-line;   /* preserves newlines from the API */
+.reading-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
 }
 
-/* Inline error message */
-.error-msg {
-  color:      var(--danger);
-  font-size:  0.85rem;
-  margin-top: 12px;
-  display:    none;
+.reading-meta span {
+  font-family: 'Cutive Mono', monospace;
+  font-size: 0.76rem;
+  color: var(--on-oak-dim);
+  border: var(--rule) solid var(--oak-edge);
+  padding: 4px 9px;
 }
 
-.error-msg.visible {
+.reading-meta strong {
+  color: #E8E2D2;
+  font-weight: 400;
+}
+
+
+/* ============================================================
+   REGISTRATION  — signed out shows two ways in, signed in shows the way out
+   ============================================================ */
+.auth-block {
+  display: none;
+}
+
+.auth-block.visible {
   display: block;
 }
 
-
-/* ============================================================
-   BOOK PANEL  — action buttons layout
-   ============================================================ */
-.book-actions {
-  display:        flex;
-  flex-direction: column;
-  gap:            10px;
-  margin-bottom:  18px;
-}
-
-/* Two buttons side by side in one row */
-.action-row {
-  display:               grid;
+.auth-grid {
+  display: grid;
   grid-template-columns: 1fr 1fr;
-  gap:                   10px;
+  gap: 34px;
 }
 
-.book-divider {
-  border:     none;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  margin:     16px 0;
+/* A single ruled line between the two, as on a form. */
+@media (min-width: 761px) {
+  .auth-grid > div:first-child {
+    padding-right: 34px;
+    border-right: var(--rule) dashed var(--card-edge);
+  }
 }
 
-
-/* ============================================================
-   BOOK PANEL  — borrowed books table
-   ============================================================ */
-.book-table-wrap {
-  overflow-x: auto;   /* scroll sideways on small screens */
+@media (max-width: 760px) {
+  .auth-grid { grid-template-columns: 1fr; gap: 26px; }
 }
 
-.book-table {
-  width:           100%;
-  border-collapse: collapse;
-  font-size:       0.82rem;
-}
-
-.book-table th {
-  text-align:     left;
-  padding:        7px 10px;
-  color:          var(--muted);
-  font-weight:    500;
-  font-size:      0.72rem;
-  letter-spacing: 0.04em;
+.auth-heading {
+  font-family: 'Archivo Narrow', sans-serif;
+  font-size: 0.94rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  border-bottom:  1px solid rgba(255, 255, 255, 0.06);
+  color: var(--ink);
+  margin-bottom: 4px;
 }
 
-.book-table td {
-  padding:       10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  color:         var(--text);
+.auth-lede {
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  margin-bottom: 16px;
 }
 
-/* No divider after the last row */
-.book-table tr:last-child td {
-  border-bottom: none;
+.signed-in-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
-/* Coloured status pill inside the table */
-.status-pill {
-  display:       inline-block;
-  padding:       2px 9px;
-  border-radius: 20px;
-  font-size:     0.7rem;
-  font-weight:   600;
-  letter-spacing: 0.03em;
-}
-
-.status-pill.borrowed  { background: rgba(74,  158, 219, 0.2); color: var(--sky);    }
-.status-pill.available { background: rgba(80,  200, 120, 0.2); color: #5dc88a;       }
-.status-pill.overdue   { background: rgba(224,  92,  92, 0.2); color: var(--danger); }
-
-/* Shown when the borrowed list is empty */
-.empty-state {
-  text-align: center;
-  color:      var(--muted);
-  font-size:  0.85rem;
-  padding:    24px 0 8px;
+.auth-name {
+  font-size: 1.06rem;
+  font-weight: 500;
+  overflow-wrap: anywhere;
 }
 
 
 /* ============================================================
-   ANIMATIONS
+   MESSAGES  — both opt in with .visible, so JS toggles them alike
    ============================================================ */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0);   }
+.error-msg,
+.hint {
+  display: none;
+  font-size: 0.85rem;
+  margin-top: 12px;
+}
+
+.error-msg.visible,
+.hint.visible {
+  display: block;
+}
+
+/* An error is corrective, so it says so in ink and in position: struck
+   against an oxide rule rather than shouted in a coloured box. */
+.error-msg {
+  color: var(--oxide);
+  border-left: 3px solid var(--oxide);
+  padding-left: 11px;
+}
+
+.hint {
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.drawer .error-msg {
+  color: #D98A72;
+  border-left-color: #D98A72;
+}
+
+
+/* ============================================================
+   MOTION
+
+   One idea, used once: a stamp presses onto the card as it renders. Nothing
+   else moves on its own.
+   ============================================================ */
+@keyframes press {
+  from { opacity: 0; transform: scale(1.14) rotate(-1.8deg); }
+  60%  { opacity: 1; }
+  to   { opacity: 0.9; transform: scale(1) rotate(-1.8deg); }
+}
+
+@keyframes press-overdue {
+  from { opacity: 0; transform: scale(1.14) rotate(2.2deg); }
+  60%  { opacity: 1; }
+  to   { opacity: 1; transform: scale(1) rotate(2.2deg); }
+}
+
+.due-block {
+  animation: press 0.26s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+.due-block.is-overdue {
+  animation-name: press-overdue;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

@@ -1,21 +1,27 @@
-# Use an official Python runtime as a parent image
-FROM python:3.11-slim
+# syntax=docker/dockerfile:1
 
-# Set the working directory in the container
+# Matches .python-version and requires-python in pyproject.toml.
+FROM python:3.14-slim
+
+# uv drives dependency installation, as it does locally; the previous image
+# installed from requirements.txt, which is no longer maintained.
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
 WORKDIR /app
 
-# Copy the requirements file into the container
-COPY requirements.txt .
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_PROJECT_ENVIRONMENT=/usr/local
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install dependencies first, from the lockfile only, so that editing source
+# does not invalidate this layer.
+COPY pyproject.toml uv.lock ./
+RUN uv sync --locked --no-install-project --no-dev
 
-# Copy the rest of the application code into the container
 COPY . .
 
-# Expose the port FastAPI runs on
 EXPOSE 8000
 
-# Command to run the application
-# We use 0.0.0.0 so it's accessible from outside the container
-CMD ["uvicorn", "core.backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# The module path is src.main:app -- the old core.backend.main:app stopped
+# existing when the code moved under src/.
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]

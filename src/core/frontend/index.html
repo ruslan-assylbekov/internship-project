@@ -3,215 +3,236 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard</title>
+  <title>Circulation Desk — The Lending Library</title>
 
-  <!-- Fonts -->
+  <!-- Three faces, three jobs: Archivo Narrow for drawer labels, Cutive Mono
+       for anything typed onto a card or stamped, Spectral for reading. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;600;700&family=Cutive+Mono&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
 
-  <!-- Styles -->
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- ===================== NAVIGATION ===================== -->
-  <nav>
-    <div class="nav-logo">my<span>dashboard</span></div>
-    <div class="nav-tabs">
-      <button class="nav-tab active">Home</button>
-      <button class="nav-tab">History</button>
-      <button class="nav-tab">Settings</button>
-    </div>
-  </nav>
+  <!-- ===================== MASTHEAD ===================== -->
+  <header class="masthead">
+    <div class="masthead-inner">
 
-
-  <!-- ===================== MAIN CONTENT ===================== -->
-  <div class="page">
-
-
-    <!-- ───────────── WEATHER PANEL ───────────── -->
-    <div class="panel">
-
-      <div class="panel-header">
-        <div class="panel-icon sky-bg">🌤</div>
-        <div class="panel-title">Weather Lookup</div>
+      <div>
+        <div class="wordmark">The Lending Library</div>
+        <div class="wordmark-rules"></div>
+        <div class="wordmark-sub">Circulation desk</div>
       </div>
 
-      <div class="panel-body">
+      <!-- The borrower's ticket. Hidden until there is a borrower to name;
+           the number is the account id, so it is data, not ornament. -->
+      <div class="borrower-card auth-block" id="auth-signed-in">
+        <div class="card-no" id="borrower-no">No. —</div>
+        <div class="card-holder" id="auth-user-name">—</div>
+        <div class="card-foot">
+          <span class="card-loans">On loan
+            <span class="typed" id="borrower-count">0</span>
+          </span>
+          <button class="btn-sm" onclick="signOut()">Sign out</button>
+        </div>
+      </div>
 
-        <!-- Inputs -->
+    </div>
+  </header>
+
+
+  <main class="desk">
+
+    <!-- ───────────── BORROWER REGISTRATION ─────────────
+         Only shown to a stranger. JS swaps this with the ticket above. -->
+    <section class="sheet auth-block visible" id="auth-forms">
+
+      <div class="sheet-head">
+        <h1 class="section-title">Borrower registration</h1>
+        <p class="section-note">A card is needed to take a book out. Browsing the
+          shelves needs nothing at all.</p>
+      </div>
+
+      <div class="auth-grid">
+
+        <div>
+          <h2 class="auth-heading">Already registered</h2>
+          <p class="auth-lede">Sign in to borrow, reserve and return.</p>
+
+          <div class="field">
+            <label class="label" for="login-email">Email</label>
+            <input id="login-email" type="email" autocomplete="email" placeholder="reader@example.com" />
+          </div>
+          <div class="field">
+            <label class="label" for="login-password">Password</label>
+            <input id="login-password" type="password" autocomplete="current-password" placeholder="••••••••" />
+          </div>
+
+          <button class="btn btn-stamp" onclick="signIn()">Sign in</button>
+
+          <p class="error-msg" id="login-error"></p>
+        </div>
+
+        <div>
+          <h2 class="auth-heading">New borrower</h2>
+          <p class="auth-lede">Fill in the card and you are signed in straight away.</p>
+
+          <div class="field-pair">
+            <div class="field">
+              <label class="label" for="reg-firstname">First name</label>
+              <input id="reg-firstname" autocomplete="given-name" placeholder="Ivan" />
+            </div>
+            <div class="field">
+              <label class="label" for="reg-lastname">Last name</label>
+              <input id="reg-lastname" autocomplete="family-name" placeholder="Petrov" />
+            </div>
+          </div>
+          <div class="field">
+            <label class="label" for="reg-email">Email</label>
+            <input id="reg-email" type="email" autocomplete="email" placeholder="reader@example.com" />
+          </div>
+          <div class="field">
+            <label class="label" for="reg-password">Password</label>
+            <input id="reg-password" type="password" autocomplete="new-password" placeholder="at least 8 characters" />
+          </div>
+
+          <button class="btn" onclick="register()">Register and sign in</button>
+
+          <p class="error-msg" id="reg-error"></p>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ───────────── ON LOAN TO YOU ─────────────
+         The date-due cards. Signed out, it says how to get one. -->
+    <section class="sheet">
+
+      <div class="sheet-head">
+        <h2 class="section-title">On loan to you</h2>
+        <button class="btn-sm" id="refresh-borrowings-btn" onclick="bookAction('mine')">Refresh</button>
+      </div>
+
+      <div class="due-cards" id="book-list">
+        <!-- Filled from GET /borrowings/me; only Active and Reserved rows can
+             still be returned or reported. -->
+      </div>
+
+    </section>
+
+
+    <!-- ───────────── THE CATALOGUE ─────────────
+         Full width: five columns plus three per-row actions. Squeezed into a
+         side-by-side column, titles wrap and the buttons stack three deep. -->
+    <section class="sheet">
+
+      <div class="sheet-head">
+        <h2 class="section-title">Catalogue</h2>
+        <p class="section-note">Borrow or reserve from the row itself.</p>
+      </div>
+
+      <!-- Query controls for GET /books/ -->
+      <div class="ledger-controls">
         <div class="field">
-          <label>City</label>
-          <input id="city" placeholder="e.g. Almaty" />
+          <label class="label" for="book-search">Search by title or author</label>
+          <input id="book-search" placeholder="Dostoevsky" />
         </div>
         <div class="field">
-          <label>Forecast Days</label>
-          <input id="days" type="number" min="1" max="10" placeholder="1 – 10" />
+          <label class="label" for="book-status-filter">Shelf status</label>
+          <select id="book-status-filter">
+            <option value="">All</option>
+            <option value="Available">Available</option>
+            <option value="Borrowed">Borrowed</option>
+            <option value="Reserved">Reserved</option>
+            <option value="Lost">Lost</option>
+          </select>
+        </div>
+      </div>
+
+      <p class="error-msg" id="books-error"></p>
+
+      <div class="ledger-wrap">
+        <table class="ledger">
+          <thead>
+            <tr>
+              <th scope="col">Title</th>
+              <th scope="col">Author</th>
+              <th scope="col">Year</th>
+              <th scope="col">Status</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody id="catalogue-list">
+            <tr><td colspan="5" class="empty-state">Fetching the catalogue…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="hint" id="borrow-auth-hint">Sign in to borrow or reserve.</p>
+
+    </section>
+
+
+    <!-- ───────────── DESK DRAWERS ─────────────
+         The two secondary jobs: adding stock, and the weather. -->
+    <div class="desk-pair">
+
+      <section class="sheet">
+        <div class="sheet-head">
+          <h2 class="section-title">Accession a book</h2>
         </div>
 
-        <!-- Search button -->
-        <button class="btn btn-sky" onclick="getWeather()">Get Weather</button>
+        <div class="field-pair">
+          <div class="field">
+            <label class="label" for="b-title">Title</label>
+            <input id="b-title" placeholder="The Brothers Karamazov" />
+          </div>
+          <div class="field">
+            <label class="label" for="b-author">Author</label>
+            <input id="b-author" placeholder="Fyodor Dostoevsky" />
+          </div>
+        </div>
+        <div class="field">
+          <label class="label" for="b-year">Year</label>
+          <input id="b-year" type="number" placeholder="1880" />
+        </div>
 
-        <!-- Error shown when the API call fails -->
-        <p class="error-msg" id="weather-error">
-          Could not fetch weather. Check the city name and try again.
-        </p>
+        <!-- Disabled by JS until a token is stored; POST /books/ needs one. -->
+        <button class="btn" id="add-book-btn" onclick="addBook()">Add to catalogue</button>
 
-        <!-- Result — hidden by default, shown after a successful API call -->
+        <p class="hint" id="add-book-hint">Sign in to add to the catalogue.</p>
+        <p class="error-msg" id="book-error"></p>
+      </section>
+
+      <!-- Not library business, so it sits in a drawer rather than on the desk. -->
+      <section class="drawer">
+        <div class="drawer-title">Outside</div>
+
+        <div class="field">
+          <label class="label" for="city">City</label>
+          <input id="city" placeholder="Almaty" />
+        </div>
+
+        <button class="btn btn-on-oak" onclick="getWeather()">Check conditions</button>
+
+        <p class="error-msg" id="weather-error"></p>
+
         <div class="weather-result" id="weather-result">
-          <div class="temp-display" id="temp">--<sup>°C</sup></div>
-          <div class="city-name"   id="city-name">—</div>
-
-          <div class="weather-meta">
-            <div class="badge">Feels like <strong id="feels">—</strong></div>
-            <div class="badge">Sky <strong id="sky-val">—</strong></div>
+          <div class="temp-reading" id="temp">--<sup>°C</sup></div>
+          <div class="reading-place" id="city-name">—</div>
+          <div class="reading-meta">
+            <span>Feels like <strong id="feels">—</strong></span>
+            <span>Sky <strong id="sky-val">—</strong></span>
           </div>
-
-          <div class="forecast-label">Forecast</div>
-          <div class="forecast-text" id="forecast">—</div>
         </div>
+      </section>
 
-      </div>
-    </div>
-    <!-- ───────────── END WEATHER PANEL ───────────── -->
-
-
-    <!-- ───────────── BOOK PANEL ───────────── -->
-    <div class="panel">
-
-      <div class="panel-header">
-        <div class="panel-icon amber-bg">📚</div>
-        <div class="panel-title">Book Borrowing</div>
-      </div>
-
-      <div class="panel-body">
-
-        <!-- Search field -->
-        <div class="field">
-          <label>Search by title or author</label>
-          <input id="book-search" placeholder="e.g. Dostoevsky" />
-        </div>
-
-        <!-- Action buttons — wire each onclick to your API -->
-        <div class="book-actions">
-          <div class="action-row">
-            <button class="btn-sm amber" onclick="bookAction('borrow')">＋ Borrow Book</button>
-            <button class="btn-sm ghost" onclick="bookAction('return')">↩ Return Book</button>
-          </div>
-          <div class="action-row">
-            <button class="btn-sm ghost" onclick="bookAction('browse')">🔍 Browse Catalogue</button>
-            <button class="btn-sm ghost" onclick="bookAction('reserve')">🔖 Reserve</button>
-          </div>
-          <button class="btn-sm danger" onclick="bookAction('report')">⚠ Report Lost / Damaged</button>
-        </div>
-
-        <hr class="book-divider" />
-
-        <!-- Currently borrowed books table -->
-        <div class="forecast-label">Currently Borrowed</div>
-        <div class="book-table-wrap">
-          <table class="book-table">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Due</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="book-list">
-              <!-- Placeholder rows — replace with real data from your API -->
-              <tr>
-                <td>Crime and Punishment</td>
-                <td>Jun 18</td>
-                <td><span class="status-pill borrowed">Borrowed</span></td>
-              </tr>
-              <tr>
-                <td>The Master and Margarita</td>
-                <td>Jun 05</td>
-                <td><span class="status-pill overdue">Overdue</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <pre id="books-result" style="margin-top: 16px; color: var(--muted); font-size: 0.8rem;"></pre>
-      </div>
-    </div>
-    <!-- ───────────── END BOOK PANEL ───────────── -->
-
-    <!-- ───────────── ADD BOOK PANEL ───────────── -->
-    <div class="panel">
-
-      <div class="panel-header">
-        <div class="panel-icon amber-bg">➕</div>
-        <div class="panel-title">Add New Book</div>
-      </div>
-
-      <div class="panel-body">
-
-        <div class="field">
-          <label>Title</label>
-          <input id="b-title" placeholder="e.g. The Brothers Karamazov" />
-        </div>
-        <div class="field">
-          <label>Author</label>
-          <input id="b-author" placeholder="e.g. Fyodor Dostoevsky" />
-        </div>
-        <div class="field">
-          <label>Year</label>
-          <input id="b-year" type="number" placeholder="e.g. 1880" />
-        </div>
-
-        <button class="btn btn-amber" onclick="addBook()">＋ Add Book</button>
-
-        <p class="error-msg" id="book-error">Failed to add book. Check the fields and try again.</p>
-        <pre id="book-create-result" style="margin-top: 16px; color: var(--muted); font-size: 0.8rem;"></pre>
-
-      </div>
-    </div>
-<!-- ───────────── END ADD BOOK PANEL ───────────── -->
-
-        <!-- TEST PANEL -->
-    <div class="panel" style="grid-column: 1 / -1;">
-      <div class="panel-header">
-        <div class="panel-icon sky-bg">🧪</div>
-        <div class="panel-title">Dev Tools — Users</div>
-      </div>
-      <div class="panel-body">
-
-        <!-- Get all users -->
-        <button class="btn btn-sky" onclick="testGetAllUsers()">GET all users</button>
-
-        <hr class="book-divider" />
-
-        <!-- Create user -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-          <div class="field"><label>First name</label><input id="u-firstname" placeholder="Ivan" /></div>
-          <div class="field"><label>Last name</label><input id="u-lastname"  placeholder="Petrov" /></div>
-          <div class="field"><label>Email</label><input id="u-email"    placeholder="ivan@email.com" /></div>
-          <div class="field"><label>Password</label><input id="u-password" type="password" placeholder="••••••" /></div>
-        </div>
-        <button class="btn btn-amber" onclick="testCreateUser()">POST create user</button>
-
-        <hr class="book-divider" />
-
-        <!-- Delete user -->
-        <div class="field" style="max-width: 200px;">
-          <label>User ID to delete</label>
-          <input id="u-delete-id" type="number" placeholder="e.g. 3" />
-        </div>
-        <button class="btn btn-ghost" onclick="testDeleteUser()">DELETE user</button>
-
-        <!-- Result output -->
-        <pre id="users-result" style="margin-top: 16px; color: var(--muted); font-size: 0.8rem;"></pre>
-
-      </div>
     </div>
 
+  </main>
 
-  </div><!-- end .page -->
-
-
-  <!-- ===================== JAVASCRIPT ===================== -->
   <script src="app.js"></script>
 
 </body>

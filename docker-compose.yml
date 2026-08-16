@@ -4,13 +4,20 @@ services:
     container_name: postgres_db
     restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=a2bf9c79
-      - POSTGRES_DB=internship-project
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-a2bf9c79}
+      - POSTGRES_DB=${POSTGRES_DB:-internship-project}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    # Without this the web service starts before postgres accepts connections
+    # and the migration step fails on a cold volume.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-internship-project}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   web:
     build: .
@@ -20,10 +27,28 @@ services:
     env_file:
       - .env
     environment:
-      # This overrides the local localhost string to point to the 'db' service
-      - DATABASE_URL=postgresql://postgres:a2bf9c79@db:5432/internship-project
+      # Overrides the localhost default so the app reaches the 'db' service.
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-a2bf9c79}@db:5432/${POSTGRES_DB:-internship-project}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    # Tables are owned by Alembic; nothing creates them at import time.
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn src.main:app --host 0.0.0.0 --port 8000"
+    # GET /health checks the database, so this reports "can serve traffic"
+    # rather than "process is up". Probed with python because the base image is
+    # python:3.14-slim, which ships no curl or wget and installing one just for
+    # a healthcheck would add a layer for nothing.
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status == 200 else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      # Covers `alembic upgrade head` running before uvicorn binds: on a cold
+      # volume that is every migration in sequence, and failures during this
+      # window do not count against retries.
+      start_period: 60s
 
 volumes:
   postgres_data:
